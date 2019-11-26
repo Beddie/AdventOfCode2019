@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Logic.Days.AdventBase>
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>A challenge every day till christmas!</h2>
+    </div>
+    <div class="col-md-12">
+        @foreach (var day in @Model)
+        {
+            <div class="row">
+                <div class="col-md-8">@day.Name</div>
+                <div class="col-md-2">
+                    @Html.ActionLink("Execute part 1", "Details", new { id = day.ID, part = 0 })
+                    @* @Html.Action("RenderDayPart", "Home")*@
+                </div>
+                <div class="col-md-2">
+                    @Html.ActionLink("Execute part 2", "Details", new { id = day.ID, part = 1 })
+                    @* @Html.Action("RenderDayPart", "Home")*@
+                </div>
+            </div>
+
+        }
+    </div>
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-10">
+            </div>
+            <div class="col-md-2">
+                @Html.ActionLink("Execute everything!", "AllDetails")
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+            </div>
+
+            <div class="col-md-2">
+                @Html.ActionLink("Leaderboard!", "GetLeaderBoard")
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        &nbsp
+    </div>
+    <div class="col-md-12">
+        <span class="line-breaks">@ViewBag.puzzleString</span>
+
+    </div>
+    <div class="col-md-12">
+        <span class="line-breaks">@Html.Raw(ViewBag.leaderboard)</span>
+    </div>
+    
+</div>
+<style>
+    .line-breaks {
+        white-space: pre-line;
+    }
+</style>
