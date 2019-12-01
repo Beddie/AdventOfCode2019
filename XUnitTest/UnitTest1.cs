@@ -1,33 +1,62 @@
-using Logic;
-using System;
+using Logic.Model;
+using Logic.Service;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace XUnitTest
 {
     public class UnitTest1
     {
-      
+        private const int DAY = 1;
+        private const int PERFORMANCECOUNT = 30;
+
         [Fact]
-        public void Test1()
+        public async Task DayPart1()
+        {
+            var day = RenderDayService.GetDay(DAY, EnumParts.Part1);
+            await day.RenderParts();
+            day.PrintResultToDebugWindow();
+        }
+
+        [Fact]
+        public async Task DayPart2()
+        {
+            var day = RenderDayService.GetDay(DAY, EnumParts.Part2);
+            await day.RenderParts();
+            day.PrintResultToDebugWindow();
+        }
+
+        [Fact]
+        public async Task AllDayResult()
+        {
+            var day = RenderDayService.GetDay(DAY);
+            await day.RenderParts();
+            day.PrintResultToDebugWindow();
+        }
+
+        [Fact]
+        public async Task TestDaySolutionPerformance()
         {
             var averageRunTime = new HashSet<long>();
-
-            //Execute puzzle 30 times
-            for (int i = 0; i < 30; i++)
+            bool isValid = true;
+            for (int i = 0; i < PERFORMANCECOUNT; i++)
             {
-                var sw = new Stopwatch();
-                sw.Start();
-                var day = RenderDay.GetDay(1);
-                var check = day.Part2();
-                if (check != day.Solution()[1]) throw new Exception("Niet het goede antwoord!");
-                sw.Stop();
-                averageRunTime.Add(sw.ElapsedMilliseconds);
+                var day = RenderDayService.GetDay(DAY);
+                await day.RenderParts();
+                averageRunTime.Add(day.ElapsedTime);
+                if (!day.IsValid)
+                {
+                    isValid = false;
+                    Debug.WriteLine($"Invalid");
+                    break;
+                }
+                day.PrintResultToDebugWindow();
             }
-            Debug.WriteLine($"Average complete in {averageRunTime.Average()} ms");
+
+            Debug.WriteLine($"IsCorrect?={isValid}. Average complete in {averageRunTime.Average()} ms");
         }
     }
 }

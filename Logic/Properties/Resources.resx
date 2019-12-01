@@ -10,7 +10,7 @@
     various data types are done through the TypeConverter classes 
     associated with the data types.
     
-    b:
+    Example:
     
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
@@ -118,13 +118,112 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Day1" xml:space="preserve">
-    <value></value>
+    <value>120150
+105328
+70481
+86674
+112434
+94883
+147500
+146007
+103982
+65758
+132357
+60885
+97516
+96977
+129085
+80330
+124081
+102501
+102505
+70029
+54155
+69253
+60120
+53192
+89470
+137125
+136296
+104546
+92859
+74937
+135044
+66238
+126678
+86364
+138559
+82393
+96947
+107749
+115332
+117563
+95431
+99640
+107667
+120427
+108389
+51567
+57493
+68518
+114565
+107248
+50627
+122517
+129687
+118989
+52459
+83726
+106765
+75872
+147111
+78822
+65058
+142460
+122496
+148942
+72753
+141599
+105711
+141860
+134066
+116716
+107455
+56673
+148238
+92318
+86652
+69312
+91352
+94528
+73441
+137814
+80247
+101115
+61773
+100951
+77189
+119083
+93841
+109090
+83370
+70230
+144812
+67647
+105358
+135780
+85225
+100697
+100998
+131151
+52826
+114084</value>
   </data>
   <data name="Day10" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day10b" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day11" xml:space="preserve">
     <value />
@@ -133,16 +232,16 @@
     <value />
   </data>
   <data name="Day12" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day12b" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day13" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day13b" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day14" xml:space="preserve">
     <value />
@@ -151,46 +250,46 @@
     <value />
   </data>
   <data name="Day15" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day15b" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day16" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day16b" xml:space="preserve">
     <value />
   </data>
   <data name="Day17" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day17b" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day18" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day18b" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day19" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day19b" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day2" xml:space="preserve">
-     <value></value>
+    <value />
   </data>
   <data name="Day20" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day20b" xml:space="preserve">
     <value>^ENWWW(NEEE|SSE(EE|N))$</value>
   </data>
   <data name="Day21" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day21b" xml:space="preserve">
     <value />
@@ -202,58 +301,58 @@
     <value />
   </data>
   <data name="Day23" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day23b" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day24" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day24b" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day25" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day25b" xml:space="preserve">
     <value />
   </data>
   <data name="Day3" xml:space="preserve">
- <value></value>
+    <value />
   </data>
   <data name="Day3b" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day4" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day4b" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day5" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day5b" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day6" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day6b" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day7" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day7b" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Day8" xml:space="preserve">
-  <value></value>
+    <value />
   </data>
   <data name="Day8b" xml:space="preserve">
-   <value></value>
+    <value />
   </data>
   <data name="Day9" xml:space="preserve">
     <value />

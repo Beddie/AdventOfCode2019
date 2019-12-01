@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using AdvenOfCodeCore.Models;
-using Logic;
 using System.Text;
-using System.Net;
-using System.IO;
 using System.Net.Http;
+using Logic.Model;
+using Logic.Service;
 
 namespace AdvenOfCodeCore.Controllers
 {
@@ -17,62 +14,47 @@ namespace AdvenOfCodeCore.Controllers
     {
         public ActionResult Index()
         {
-            var overviewmodel = RenderDay.GetOverview();
-            return View("Index", overviewmodel);
+            return View("Index", RenderDayService.GetOverview());
         }
 
         public ActionResult RenderDayPart()
         {
             ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
-        public ActionResult Details(int id, int part)
+        public async Task<IActionResult> Details(int id, int part)
         {
-            var overviewmodel = RenderDay.GetOverview();
+            var overviewmodel = RenderDayService.GetOverview();
 
             var AoCDay = overviewmodel.Where(c => c.ID == id).FirstOrDefault();
             if (AoCDay != null)
             {
-                var puzzleString = string.Empty;
-                var sw = new Stopwatch();
-                sw.Start();
-
-                switch (part)
-                {
-                    case 0:
-                        puzzleString = AoCDay.Part1();
-                        break;
-                    case 1:
-                        puzzleString = AoCDay.Part2();
-                        break;
-                    default:
-                        break;
-                }
-                ViewBag.puzzleString = string.Format("Answer = {0} ({1} ms)", puzzleString, sw.ElapsedMilliseconds);
-                sw.Stop();
+                var partResult = string.Empty;
+                AoCDay.PartsToRender = new List<EnumParts> { (EnumParts)part };
+                await AoCDay.RenderParts();
+                partResult = AoCDay.GetResult((EnumParts)part);
+                if (!string.IsNullOrWhiteSpace(partResult)) ViewBag.puzzleString = $"{partResult}";
             }
 
             return View("Index", overviewmodel);
         }
 
-        public ActionResult AllDetails()
+        public async Task<IActionResult> AllDetails()
         {
-            var puzzleString = string.Empty;
             var sw = new Stopwatch();
-            var overviewmodel = RenderDay.GetOverview();
+            var overviewmodel = RenderDayService.GetOverview();
             var sb = new StringBuilder();
 
             sw.Start();
             var startTime = sw.ElapsedMilliseconds;
             foreach (var day in overviewmodel)
             {
-                var day1 = day.Part1();
+                await day.Part1();
                 var day1Time = sw.ElapsedMilliseconds - startTime;
-                var day2 = day.Part2();
+                await day.Part2();
                 var day2Time = sw.ElapsedMilliseconds - startTime - day1Time;
-                sb.AppendLine($"{day.Name} part1 answer: {day1} ({day1Time} ms), part2 answer: {day2} ({day2Time} ms))");
+                sb.AppendLine($"{day.Name} part1 answer: {day.ResultPart1} ({day1Time} ms), part2 answer: {day.ResultPart2} ({day2Time} ms))");
                 startTime = sw.ElapsedMilliseconds;
             }
             sw.Stop();
@@ -85,7 +67,7 @@ namespace AdvenOfCodeCore.Controllers
         //TODO make private leaderboard JSON with cookie WORK :)
         public async Task<ActionResult> GetLeaderBoard()
         {
-            var overviewmodel = RenderDay.GetOverview();
+            var overviewmodel = RenderDayService.GetOverview();
             var leaderboard = await GetJSON();
             ViewBag.leaderboard = leaderboard;
             return View("Index", overviewmodel);

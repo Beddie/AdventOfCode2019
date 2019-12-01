@@ -1,22 +1,24 @@
-﻿using Logic.Days;
+﻿using Logic.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
-namespace Logic
+namespace Logic.Service
 {
-    public class RenderDay
+    public class RenderDayService
     {
-        public static AdventBase GetDay(int day)
+        public static AdventBase GetDay(int day, EnumParts part = EnumParts.None)
         {
             try
             {
                 Type elementType = Type.GetType($"Logic.Days.Day{day}");
-                var dayObject = (AdventBase)Activator.CreateInstance(elementType);
+                var dayObject = (AdventBase)Activator.CreateInstance(elementType, day);
+                if (part != EnumParts.None) { dayObject.PartsToRender = new List<EnumParts>() { part }; }; 
                 if (dayObject.Active) return dayObject;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //Do nothing
+                Debug.WriteLine(ex);
             }
             return null;
         }

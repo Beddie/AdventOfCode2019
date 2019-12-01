@@ -1,9 +1,10 @@
-﻿namespace Logic.Interface
+﻿using System.Threading.Tasks;
+
+namespace Logic.Interface
 {
     public interface AdventInterface
     {
-        string[] Solution();
-        string Part1();
-        string Part2();
+        Task Part1();
+        Task Part2();
     }
 }

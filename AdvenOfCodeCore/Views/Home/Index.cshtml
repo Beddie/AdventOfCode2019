@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Logic.Days.AdventBase>
+﻿@model IEnumerable<Logic.Model.AdventBase>
 @{
     ViewBag.Title = "Home Page";
 }
@@ -13,12 +13,10 @@
             <div class="row">
                 <div class="col-md-8">@day.Name</div>
                 <div class="col-md-2">
-                    @Html.ActionLink("Execute part 1", "Details", new { id = day.ID, part = 0 })
-                    @* @Html.Action("RenderDayPart", "Home")*@
+                    @Html.ActionLink("Execute part 1", "Details", new { id = day.ID, part = 1 })
                 </div>
                 <div class="col-md-2">
-                    @Html.ActionLink("Execute part 2", "Details", new { id = day.ID, part = 1 })
-                    @* @Html.Action("RenderDayPart", "Home")*@
+                    @Html.ActionLink("Execute part 2", "Details", new { id = day.ID, part = 2 })
                 </div>
             </div>
 

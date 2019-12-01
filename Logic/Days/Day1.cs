@@ -1,36 +1,48 @@
-﻿using Logic.Interface;
+﻿using Logic.Model;
 using Logic.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Logic.Days
 {
     public class Day1 : AdventBase
     {
-        public Day1()
+        public Day1(int day) : base(day)
         {
-            PuzzleInput = Resources.Day1;
-            ID = 1;
-            Title = "Dummy title";
+            Title = "The Tyranny of the Rocket Equation";
+            PuzzleInput = !string.IsNullOrEmpty(TestInput) ? TestInput : Resources.Day1;
+            Day1Modules = PuzzleInput.Split('\n').Select(x => Convert.ToDouble(x));
+            SolutionPart1 = "3325342";
+            SolutionPart2 = "4985158";
         }
 
-        public override string[] Solution()
+        private IEnumerable<double> Day1Modules;
+
+        public override async Task Part1()
         {
-            return new string[] {
-                "",
-                ""
-            };
+            var totalFuel = 0d;
+            foreach (var module in Day1Modules)
+            {
+                totalFuel += CalcFuelPart1(module);
+            }
+            ResultPart1 = totalFuel.ToString();
         }
 
-        public override string Part1()
-        {
-            return null;
-        }
+        private double CalcFuelPart1(double input) => Math.Round(input / 3d, 0, MidpointRounding.ToZero) - 2;
+        public override async Task Part2() => ResultPart2 = Day1Modules.Select(module => CalcFuelPart2(module)).Sum().ToString();
 
-        public override string Part2()
+        private double CalcFuelPart2(double input)
         {
-            return null;  
+            var totalfuelfuel = 0d;
+            var fuelfuel = CalcFuelPart1(input);
+            do
+            {
+                totalfuelfuel += fuelfuel;
+                fuelfuel = CalcFuelPart1(fuelfuel);
+            } while (fuelfuel > 0);
+            return totalfuelfuel;
         }
     }
 }
