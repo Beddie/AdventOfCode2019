@@ -19,7 +19,7 @@ namespace Logic.Model
         public string ResultPart1 { get; protected set; }
         public string ResultPart2 { get; protected set; }
         public long ElapsedTime { get; private set; }
-        public List<EnumParts> PartsToRender { get; set; } = new List<EnumParts>();
+        public List<EnumParts> PartsToRender { get; set; } = new List<EnumParts>() { EnumParts.Part1, EnumParts.Part2 };
         public bool IsValid => (!HasPart1 || (HasPart1 && part1isValid)) && (!HasPart2 || (HasPart2 && part2isValid));
         public bool Active => Name.Length > 9;
       
