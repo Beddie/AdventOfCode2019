@@ -10,7 +10,7 @@ namespace XUnitTest
 {
     public class UnitTest1
     {
-        private const int DAY = 3;
+        private const int DAY = 8;
         private const int PERFORMANCECOUNT = 30;
 
         [Fact]
