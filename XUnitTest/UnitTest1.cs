@@ -10,8 +10,24 @@ namespace XUnitTest
 {
     public class UnitTest1
     {
-        private const int DAY = 10;
+        private const int DAY = 9;
         private const int PERFORMANCECOUNT = 30;
+
+        [Fact]
+        public async Task DayPart1Test()
+        {
+            var day = RenderDayService.GetDay(DAY, EnumParts.Part1);
+            await day.RenderTestParts();
+            day.PrintResultToDebugWindow();
+        }
+
+        [Fact]
+        public async Task DayPart2Test()
+        {
+            var day = RenderDayService.GetDay(DAY, EnumParts.Part2);
+            await day.RenderTestParts();
+            day.PrintResultToDebugWindow();
+        }
 
         [Fact]
         public async Task DayPart1()

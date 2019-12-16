@@ -24,6 +24,7 @@ namespace Logic.Model
         public bool Active => Name.Length > 9;
       
         protected string TestInput { get; set; }
+        protected List<InputOutput> TestInputOutput { get; set; } = new List<InputOutput>();
         protected string SolutionPart1 { private get; set; }
         protected string SolutionPart2 { private get; set; }
         protected string PuzzleInput { get; set; }
@@ -69,6 +70,19 @@ namespace Logic.Model
             ElapsedTime = sw.ElapsedMilliseconds;
         }
 
+        public async Task RenderTestParts()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            var runPart1 = (HasPart1) ? TestPart1() : null;
+            var runPart2 = (HasPart2) ? TestPart2() : null;
+
+            if (HasPart1) await runPart1;
+            if (HasPart2) await runPart2;
+            sw.Stop();
+            ElapsedTime = sw.ElapsedMilliseconds;
+        }
+
         public virtual async Task Part1()
         {
             throw new NotImplementedException();
@@ -78,5 +92,22 @@ namespace Logic.Model
         {
             throw new NotImplementedException();
         }
+
+        public virtual async Task TestPart1()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task TestPart2()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class InputOutput
+    {
+        public string InputValue { get; set; }
+        public string PuzzleString { get; set; }
+        public string OutputValue { get; set; }
     }
 }
