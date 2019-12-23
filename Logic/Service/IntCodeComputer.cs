@@ -1,20 +1,79 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Logic.Service
 {
+    public class Packet
+    {
+        public long? DestinationAddress { get; set; }
+        public long? X { get; set; }
+        public long? Y { get; set; }
+
+        public void Fill(long value)
+        {
+            if (!DestinationAddress.HasValue)
+            {
+                DestinationAddress = value;
+            }
+            else if (!X.HasValue)
+            {
+                X = value;
+            }
+            else if (!Y.HasValue)
+            {
+                Y = value;
+            }
+        }
+
+        public long? TryGetInput()
+        {
+            long? returnvalue = null;
+            if (X.HasValue)
+            {
+                returnvalue = X;
+                X = null;
+            }
+            else if (Y.HasValue)
+            {
+                returnvalue = Y;
+                Y = null;
+            }
+            return returnvalue;
+        }
+
+
+        public bool IsReadyForShipment()
+        {
+            return DestinationAddress.HasValue && X.HasValue && Y.HasValue;
+        }
+        public bool IsEmpty()
+        {
+            return !X.HasValue && !Y.HasValue;
+        }
+    }
+
     public class IntCodeComputer
     {
+        public long ID { get; private set; }
         public IntCodeComputer(List<long> computerMemory, long startValue)
         {
+            ID = startValue;
             LocalComputerMemory = new ComputerMemory(0, computerMemory, startValue, true);
         }
 
-        public long Start()
+        public long Start(long? value = null)
         {
+            if (value.HasValue)
+            {
+                LocalComputerMemory.ProgramValue = value.Value;
+            }
+
             while (true)
             {
                 //Get opcode from pointer
@@ -26,6 +85,291 @@ namespace Logic.Service
                 }
             }
         }
+
+        public long[] StartAndReturn2Outputs(long? value = null)
+        {
+            var returnValues = new long[3];
+            var count = 0;
+            if (value.HasValue)
+            {
+                LocalComputerMemory.ProgramValue = value.Value;
+            }
+
+            while (true)
+            {
+                //Get opcode from pointer
+                var opcode = GetOpCodeFromCurrentPointer();
+                opcode.Run(LocalComputerMemory);
+                if (opcode is Exit)
+                {
+                    returnValues[2] = 1;
+                    break;
+                }
+                else if (opcode is Output)
+                {
+                    returnValues[count] = LocalComputerMemory.ProgramValue;
+                    count++;
+                }
+
+                if (count == 2)
+                {
+                    break;
+                }
+            }
+
+            return returnValues;
+        }
+
+
+        public long[] StartAndReturn3Outputs(long? value = null)
+        {
+            var returnValues = new long[4];
+            var count = 0;
+            if (value.HasValue)
+            {
+                LocalComputerMemory.ProgramValue = value.Value;
+            }
+
+            while (true)
+            {
+                //Get opcode from pointer
+                var opcode = GetOpCodeFromCurrentPointer();
+                opcode.Run(LocalComputerMemory);
+                if (opcode is Exit)
+                {
+                    returnValues[3] = 1;
+                    break;
+                }
+                else if (opcode is Output)
+                {
+                    returnValues[count] = LocalComputerMemory.ProgramValue;
+                    count++;
+                }
+
+                if (count == 3)
+                {
+                    break;
+                }
+            }
+
+            return returnValues;
+        }
+
+        //Added - Day23
+        private Packet inputPacket { get; set; } = null;
+        private Packet outputPacket { get; set; } = null;
+        private bool firstInput { get; set; } = true;
+        private bool isIdle { get; set; }
+        private int idleCount { get; set; }
+        public long? RunTillOutput(ConcurrentDictionary<long, Queue<Packet>> packets, CancellationTokenSource cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var opcode = GetOpCodeFromCurrentPointer();
+
+                if (opcode is Input)
+                {
+                    if (firstInput)
+                    {
+                        firstInput = false;
+                    }
+                    else
+                    {
+                        long value;
+                        if (inputPacket == null)
+                        {
+                            packets.TryGetValue(ID, out Queue<Packet> packetQueue);
+                            if (packetQueue != null)
+                            {
+                                packetQueue.TryDequeue(out Packet dequeudInputPacket);
+                                if (dequeudInputPacket != null)
+                                {
+                                    inputPacket = dequeudInputPacket;
+                                    Debug.WriteLine($"Dequeue from {packetQueue.Count() + 1} items\t{inputPacket.DestinationAddress} X={inputPacket.X} Y={inputPacket.Y}");
+                                }
+                            }
+                            value = inputPacket?.TryGetInput() ?? -1;
+                        }
+                        else
+                        {
+                            value = inputPacket.TryGetInput() ?? -1;
+                            if (inputPacket.IsEmpty()) inputPacket = null;
+                        }
+
+                        isIdle = value == -1 && LocalComputerMemory.ProgramValue == -1;
+
+                        if (isIdle)
+                        {
+                            idleCount++;
+                            Thread.Sleep(1000);
+                        }
+                        LocalComputerMemory.ProgramValue = value;
+                    }
+                }
+
+                opcode.Run(LocalComputerMemory);
+
+                if (opcode is Output)
+                {
+                    if (outputPacket == null)
+                    {
+                        outputPacket = new Packet();
+                    }
+                    isIdle = false;
+                    idleCount = 0;
+                    outputPacket.Fill(LocalComputerMemory.ProgramValue);
+                    if (outputPacket.IsReadyForShipment())
+                    {
+                        var newPacket = new Packet() { DestinationAddress = outputPacket.DestinationAddress, X = outputPacket.X, Y = outputPacket.Y };
+                        packets.TryGetValue(outputPacket.DestinationAddress.Value, out Queue<Packet> packetQueue);
+
+                        if (newPacket.DestinationAddress.Value == 255)
+                        {
+                            cancellationToken.Cancel();
+                            return newPacket.Y.Value;
+                        }
+
+                        if (packetQueue == null)
+                        {
+                            packetQueue = new Queue<Packet>();
+                            packetQueue.Enqueue(newPacket);
+                            Debug.WriteLine($"Enqueue 1st\t{newPacket.DestinationAddress} X={newPacket.X} Y={newPacket.Y}");
+                            packets.TryAdd(outputPacket.DestinationAddress.Value, packetQueue);
+                        }
+                        else
+                        {
+                            packetQueue.Enqueue(newPacket);
+                            Debug.WriteLine($"Enqueue {packetQueue.Count()}nd\t{newPacket.DestinationAddress} X={newPacket.X} Y={newPacket.Y}");
+                        }
+                        outputPacket = null;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public long lastValue { get; set; }
+        public long? RunTillOutputWithIdleStatus(ConcurrentDictionary<long, Queue<Packet>> packets, ConcurrentDictionary<long, bool> computerIdleStatus, CancellationTokenSource cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (ID == 0 && computerIdleStatus.Count == 50 && computerIdleStatus.All(x => x.Value == true))
+                {
+                    Packet NATPackage = null;
+                    while (packets[255].TryDequeue(out Packet NATPackageCheck))
+                    {
+                        if (NATPackageCheck != null) NATPackage = NATPackageCheck;
+                    }
+
+                    if (lastValue == NATPackage.Y.Value)
+                    {
+
+                        cancellationToken.Cancel();
+                        return NATPackage.Y.Value;
+                    }
+
+                    lastValue = NATPackage.Y.Value;
+
+                    var newPacket = new Packet() { DestinationAddress = 0, X = NATPackage.X, Y = NATPackage.Y };
+
+                    var queue = new Queue<Packet>();
+                    queue.Enqueue(newPacket);
+                    if (!packets.TryAdd(ID, queue))
+                    {
+                        packets[ID].Enqueue(newPacket);
+                    }
+                    computerIdleStatus.Clear();
+                    Debug.WriteLine($"NAT PACKAGE {NATPackage.Y}");
+                }
+
+                var opcode = GetOpCodeFromCurrentPointer();
+
+                if (opcode is Input)
+                {
+                    if (firstInput)
+                    {
+                        firstInput = false;
+                    }
+                    else
+                    {
+                        long value;
+                        if (inputPacket == null)
+                        {
+                            packets.TryGetValue(ID, out Queue<Packet> packetQueue);
+                            if (packetQueue != null)
+                            {
+                                packetQueue.TryDequeue(out Packet dequeudInputPacket);
+                                if (dequeudInputPacket != null)
+                                {
+                                    inputPacket = dequeudInputPacket;
+                                }
+                            }
+                            value = inputPacket?.TryGetInput() ?? -1;
+                        }
+                        else
+                        {
+                            value = inputPacket.TryGetInput() ?? -1;
+                            if (inputPacket.IsEmpty()) inputPacket = null;
+                        }
+
+                        isIdle = value == -1 && LocalComputerMemory.ProgramValue == -1;
+
+                        if (isIdle)
+                        {
+                            idleCount++;
+                            if (idleCount >= 3)
+                            {
+                                if (!computerIdleStatus.TryAdd(ID, true))
+                                {
+                                    computerIdleStatus[ID] = true;
+                                }
+                            }
+                            Thread.Sleep(250);
+
+                        }
+                        LocalComputerMemory.ProgramValue = value;
+                    }
+                }
+
+                opcode.Run(LocalComputerMemory);
+
+                if (opcode is Output)
+                {
+                    if (outputPacket == null)
+                    {
+                        outputPacket = new Packet();
+                    }
+                    isIdle = false;
+                    idleCount = 0;
+                    if (!computerIdleStatus.TryAdd(ID, false))
+                    {
+                        computerIdleStatus[ID] = false;
+                    }
+
+                    outputPacket.Fill(LocalComputerMemory.ProgramValue);
+                    if (outputPacket.IsReadyForShipment())
+                    {
+                        var newPacket = new Packet() { DestinationAddress = outputPacket.DestinationAddress, X = outputPacket.X, Y = outputPacket.Y };
+                        packets.TryGetValue(outputPacket.DestinationAddress.Value, out Queue<Packet> packetQueue);
+
+                        if (packetQueue == null)
+                        {
+                            packetQueue = new Queue<Packet>();
+                            packetQueue.Enqueue(newPacket);
+                            packets.TryAdd(outputPacket.DestinationAddress.Value, packetQueue);
+                        }
+                        else
+                        {
+                            packetQueue.Enqueue(newPacket);
+                        }
+                        outputPacket = null;
+                    }
+                }
+            }
+            return null;
+        }
+
+
 
         private IOpcode GetOpCodeFromCurrentPointer()
         {
@@ -161,7 +505,7 @@ namespace Logic.Service
                 ProgramValue = startValue;
                 if (expand)
                 {
-                    var addRange = Enumerable.Range(0, 9999999).Select(x => Convert.ToInt64(0)).ToList();
+                    var addRange = Enumerable.Range(0, 99999).Select(x => Convert.ToInt64(0)).ToList();
                     Memory.AddRange(addRange);
                 }
             }
@@ -183,7 +527,7 @@ namespace Logic.Service
                 return pointer;
             }
             private long pointer { get; set; }
-            private long programValue;
+            private long programValue { get; set; }
 
             public long ProgramValue
             {
@@ -209,9 +553,15 @@ namespace Logic.Service
 
         private class Exit : Opcode, IOpcode
         {
+            public Exit()
+            {
+                Length = 1;
+            }
+
             public void Run(ComputerMemory computerMemory)
             {
                 Exit = true;
+                computerMemory.SetNewPointer(Length);
             }
         }
 
