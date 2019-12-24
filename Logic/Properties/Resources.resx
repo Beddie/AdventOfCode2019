@@ -494,7 +494,11 @@ deal into new stack</value>
     <value />
   </data>
   <data name="Day24" xml:space="preserve">
-    <value />
+    <value>###..
+#...#
+.#.##
+##.#.
+#.###</value>
   </data>
   <data name="Day24b" xml:space="preserve">
     <value />
